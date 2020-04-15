@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import site.keyu.minigit.config.GitEnv;
 import site.keyu.minigit.pojo.BranchInfo;
 import site.keyu.minigit.pojo.ErrorNotice;
+import site.keyu.minigit.pojo.SuccessInfo;
 import site.keyu.minigit.service.GitService;
 import site.keyu.minigit.service.RepositoryService;
 
@@ -52,12 +53,9 @@ public class RepositoryController {
     @GetMapping(path = "/{group}/{repo}/branch")
     @ResponseBody
     public Object branch(@PathVariable("group") String group,
-                         @PathVariable("repo") String repo) throws IOException {
-        String targetPath = "/" + group + "/" + repo;
-        FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
-        repositoryBuilder.setMustExist(true);
-        repositoryBuilder.setGitDir(new File( this.gitEnv.basepath + targetPath + "/.git"));//绑定某一仓库
-        Repository repository = repositoryBuilder.findGitDir().build();
+                         @PathVariable("repo") String repo){
+
+        Repository repository = this.repositoryService.buildRepo(group,repo);
 
 
         List<Object> data = new ArrayList<>();
@@ -72,20 +70,26 @@ public class RepositoryController {
             map.put("commitMessage",branchInfo.getHeadCommit().getShortMessage());
             data.add(map);
         }
-        return  data;
+        return new SuccessInfo(data);
     }
 
-    @GetMapping(path = "/{group}/{repo}/commit")
+    /**
+     * 获取指定分支的commit信息
+     * @param group
+     * @param repo
+     * @param branch
+     * @return
+     * @throws IOException
+     * @throws NoHeadException
+     * @throws GitAPIException
+     */
+    @GetMapping(path = "/{group}/{repo}/commits")
     @ResponseBody
     public Object commit(@PathVariable("group") String group,
                          @PathVariable("repo") String repo,
-                         @RequestParam(name = "branch",required = false) String branch) throws IOException, NoHeadException, GitAPIException {
+                         @RequestParam(name = "branch",required = false) String branch) throws IOException {
 
-        String targetPath = "/" + group + "/" + repo;
-        FileRepositoryBuilder repositoryBuilder = new FileRepositoryBuilder();
-        repositoryBuilder.setMustExist(true);
-        repositoryBuilder.setGitDir(new File( this.gitEnv.basepath + targetPath + "/.git"));
-        Repository repository = repositoryBuilder.build();
+        Repository repository = this.repositoryService.buildRepo(group,repo);
 
         Map<String,Object> map = new HashMap<>();
         List<Object> commitsInfo = new ArrayList<>();
@@ -99,7 +103,6 @@ public class RepositoryController {
         }else{
             log = this.gitService.log(repository);
         }
-
         log.forEach((RevCommit commit) -> {
             Map<String,Object> temp = new HashMap<>();
             temp.put("message",commit.getShortMessage());
@@ -110,12 +113,9 @@ public class RepositoryController {
             temp.put("id",commit.getId().getName());
             commitsInfo.add(temp);
         });
-
         map.put("commits",commitsInfo);
-        return map;
+        return new SuccessInfo(map);
     }
-
-
-
+    
 
 }

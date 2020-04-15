@@ -43,6 +43,7 @@ public class GitController {
     @GetMapping("/git")
     @ResponseBody
     public Object basepath(){
+
         return this.gitEnv.basepath;
     }
 

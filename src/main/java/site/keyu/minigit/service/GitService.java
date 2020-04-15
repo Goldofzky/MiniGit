@@ -6,10 +6,12 @@ import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -60,15 +62,18 @@ public class GitService {
         }
     }
 
-    public Object diff(Repository repo){
+    public List<DiffEntry> diff(Repository repo, CanonicalTreeParser oldTree,CanonicalTreeParser newTree){
         Git git = new Git(repo);
         try{
-            List<DiffEntry> diffs =  git.diff().call();
+            List<DiffEntry> diffs =  git.diff().setNewTree(newTree).setOldTree(oldTree).call();
             return diffs;
         }catch (Exception e){
             logger.error(e.getMessage());
-            return null;
+            e.printStackTrace();
         }
+
+        return null;
+
     }
 
 
