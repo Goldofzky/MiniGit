@@ -5,6 +5,7 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.notes.Note;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import java.util.List;
 public class GitService {
     private Logger logger = LoggerFactory.getLogger(GitService.class);
 
+    //git log
     public Iterable<RevCommit> log(Repository repo){
         Git git = new Git(repo);
         try {
@@ -29,6 +31,7 @@ public class GitService {
         }
     }
 
+    //git log SHA1 SHA2
     public Iterable<RevCommit> log(Repository repo, ObjectId since,ObjectId to){
         Git git = new Git(repo);
         try {
@@ -40,6 +43,7 @@ public class GitService {
         }
     }
 
+    //git log SHA1
     public Iterable<RevCommit> log(Repository repo, ObjectId start){
         Git git = new Git(repo);
         try {
@@ -51,6 +55,7 @@ public class GitService {
         }
     }
 
+    //git branch
     public List<Ref> branch(Repository repo){
         Git git = new Git(repo);
         try {
@@ -62,6 +67,7 @@ public class GitService {
         }
     }
 
+    //git diff SHA1 SHA2
     public List<DiffEntry> diff(Repository repo, CanonicalTreeParser oldTree,CanonicalTreeParser newTree){
         Git git = new Git(repo);
         try{
@@ -73,8 +79,21 @@ public class GitService {
         }
 
         return null;
-
     }
+
+    //git notes show
+    public Note notesShow(Repository repo,RevCommit revCommit){
+        Git git = new Git(repo);
+        try {
+            Note note = git.notesShow().setObjectId(revCommit).call();
+            return note;
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 
 }
