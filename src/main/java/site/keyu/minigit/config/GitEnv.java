@@ -11,5 +11,7 @@ public class GitEnv {
     @Value("${site.keyu.git.basepath}")
     public String basepath;
 
+    @Value("${site.keyu.git.temppath}")
+    public String tempPath;
 
 }

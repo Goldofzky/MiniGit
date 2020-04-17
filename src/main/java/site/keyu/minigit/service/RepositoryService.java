@@ -11,12 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import site.keyu.minigit.config.GitEnv;
 import site.keyu.minigit.pojo.BranchInfo;
+import site.keyu.minigit.util.ZipUtil;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class RepositoryService {
@@ -26,6 +27,9 @@ public class RepositoryService {
 
     @Autowired
     private GitEnv gitEnv;
+
+    @Autowired
+    private ZipUtil zipUtil;
 
     private Logger logger = LoggerFactory.getLogger(RepositoryService.class);
 
@@ -46,6 +50,7 @@ public class RepositoryService {
                 branchInfo.setRef(ref);
                 branchesInfos.add(branchInfo);
             }catch (Exception e){
+                e.printStackTrace();
                 logger.error(e.getMessage());
             }
         }
@@ -67,10 +72,26 @@ public class RepositoryService {
             Repository repository = repositoryBuilder.build();
             return  repository;
         }catch (Exception e){
-            this.logger.info(e.getMessage());
+            e.printStackTrace();
+            logger.error(e.getMessage());
         }
         return null;
     }
+
+    public String zipRepo(String group,String repoName){
+        String targetPath = this.gitEnv.tempPath + "/" + group + "-" + repoName + "-" + System.currentTimeMillis() + ".zip";
+        String sourcePath = this.gitEnv.basepath + "/" + group + "/" + repoName;
+        try {
+            OutputStream outputStream = new FileOutputStream(targetPath);
+            zipUtil.toZip(sourcePath,outputStream);
+            return targetPath;
+        }catch (Exception e){
+            e.printStackTrace();
+            logger.error(e.getMessage());
+        }
+        return null;
+    }
+
 
 }
 

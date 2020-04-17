@@ -8,9 +8,15 @@ import org.eclipse.jgit.revwalk.RevWalk;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import site.keyu.minigit.config.GitEnv;
 import site.keyu.minigit.service.CommitService;
 import site.keyu.minigit.service.GitService;
 import site.keyu.minigit.service.RepositoryService;
+import site.keyu.minigit.util.ZipUtil;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 
 @SpringBootTest
 class MinigitApplicationTests {
@@ -24,18 +30,22 @@ class MinigitApplicationTests {
     @Autowired
     GitService gitService;
 
+    @Autowired
+    ZipUtil zipUtil;
+
+    @Autowired
+    GitEnv env;
+
     @Test
     void test() {
-        Repository repo = this.repositoryService.buildRepo("User1","MyGit");
+        //Repository repo = this.repositoryService.buildRepo("User1","MyGit");
+        String source = this.env.basepath + "\\User1\\MyGit";
+        String target = this.env.tempPath + "\\target.zip";
         try {
-            ObjectId commitId = repo.resolve("18d09");
-            RevWalk revWalk = new RevWalk(repo);
-            RevCommit revCommit = revWalk.parseCommit(commitId);
-            RevCommit nextCommit = getNextCommit(repo,revCommit);
-
-            System.out.println(nextCommit.getName());
+            OutputStream outputStream = new FileOutputStream(new File(target));
+            this.zipUtil.toZip(source,outputStream);
         }catch (Exception e){
-
+            e.printStackTrace();
         }
 
     }

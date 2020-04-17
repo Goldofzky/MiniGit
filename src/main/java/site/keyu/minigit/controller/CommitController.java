@@ -101,7 +101,6 @@ public class CommitController {
         df.setDiffComparator(RawTextComparator.WS_IGNORE_ALL);
         df.setRepository(repository);
         for (DiffEntry diff : diffs) {
-
             Map<String, Object> map = new HashMap<>();
             df.format(diff);
             String diffText = out.toString("UTF-8");
