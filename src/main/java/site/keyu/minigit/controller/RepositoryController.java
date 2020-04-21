@@ -2,6 +2,7 @@ package site.keyu.minigit.controller;
 
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
+import org.eclipse.jgit.internal.storage.file.FileRepository;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
@@ -54,7 +55,7 @@ public class RepositoryController {
      * @return
      * @throws IOException
      */
-    @GetMapping(path = "/{group}/{repo}/branch")
+    @GetMapping(path = "/api/{group}/{repo}/branch")
     @ResponseBody
     public Object branch(@PathVariable("group") String group,
                          @PathVariable("repo") String repo){
@@ -87,7 +88,7 @@ public class RepositoryController {
      * @throws NoHeadException
      * @throws GitAPIException
      */
-    @GetMapping(path = "/{group}/{repo}/commits")
+    @GetMapping(path = "/api/{group}/{repo}/commits")
     @ResponseBody
     public Object commit(@PathVariable("group") String group,
                          @PathVariable("repo") String repo,
@@ -127,7 +128,7 @@ public class RepositoryController {
      * @param repo
      * @return
      */
-    @GetMapping(path = "/{group}/{repo}/download")
+    @GetMapping(path = "/api/{group}/{repo}/download")
     public StreamingResponseBody download(@PathVariable("group") String group,
                                           @PathVariable("repo") String repo,
                                           HttpServletResponse response){
@@ -154,5 +155,12 @@ public class RepositoryController {
         }
         return null;
     }
+
+
+//    @GetMapping(path = "/*")
+//    public Object get() throws Exception{
+//
+//        return new FileRepository("C:\\MiniGit\\User1\\MyGit\\.git");
+//    }
 
 }

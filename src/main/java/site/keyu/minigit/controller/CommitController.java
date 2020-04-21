@@ -31,7 +31,7 @@ public class CommitController {
     @Autowired
     private RepositoryService repositoryService;
 
-    @GetMapping(path = "/{group}/{repo}/commit/info/{id}")
+    @GetMapping(path = "/api/{group}/{repo}/commit/info/{id}")
     @ResponseBody
     public Object commit(@PathVariable("group") String group,
                          @PathVariable("repo") String repo,
@@ -81,7 +81,7 @@ public class CommitController {
         return new SuccessInfo(data);
     }
 
-    @GetMapping(path = "/{group}/{repo}/commit/diff")
+    @GetMapping(path = "/api/{group}/{repo}/commit/diff")
     @ResponseBody
     public Object diff(@PathVariable("group") String group,
                        @PathVariable("repo") String repo,
