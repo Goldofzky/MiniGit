@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -87,6 +86,32 @@ public class GitService {
         try {
             Note note = git.notesShow().setObjectId(revCommit).call();
             return note;
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //git add branch
+    public Ref addBranch(Repository repo,String name){
+        Git git = new Git(repo);
+        try{
+            Ref ref = git.branchCreate().setName(name).call();
+            return ref;
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //get remove branch
+    public List<String> removeBranch(Repository repo,String name){
+        Git git = new Git(repo);
+        try {
+            List<String> ref = git.branchDelete().setBranchNames(name).call();
+            return ref;
         }catch (Exception e){
             logger.error(e.getMessage());
             e.printStackTrace();

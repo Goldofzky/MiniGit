@@ -1,9 +1,12 @@
 package site.keyu.minigit.controller;
 
 
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.diff.RawTextComparator;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +18,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import site.keyu.minigit.pojo.ErrorNotice;
 import site.keyu.minigit.pojo.SuccessInfo;
 import site.keyu.minigit.service.CommitService;
+import site.keyu.minigit.service.GitService;
 import site.keyu.minigit.service.RepositoryService;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +34,55 @@ public class CommitController {
     private CommitService commitService;
 
     @Autowired
+    private GitService gitService;
+
+    @Autowired
     private RepositoryService repositoryService;
+
+
+    /**
+     * 获取指定分支的commit信息
+     * @param group
+     * @param repo
+     * @param branch
+     * @return
+     * @throws IOException
+     * @throws NoHeadException
+     * @throws GitAPIException
+     */
+    @GetMapping(path = "/api/{group}/{repo}/commits")
+    @ResponseBody
+    public Object getCommits(@PathVariable("group") String group,
+                         @PathVariable("repo") String repo,
+                         @RequestParam(name = "branch",required = false) String branch) throws IOException {
+
+        Repository repository = this.repositoryService.buildRepo(group,repo);
+
+        Map<String,Object> map = new HashMap<>();
+        List<Object> commitsInfo = new ArrayList<>();
+        Iterable<RevCommit> log;
+        if (branch != null){
+            Ref ref = repository.getRef("/refs/heads/"+branch);
+            if(ref == null){
+                return new ErrorNotice("branch not found:"+branch);
+            }
+            log = this.gitService.log(repository,ref.getObjectId());
+        }else{
+            log = this.gitService.log(repository);
+        }
+        log.forEach((RevCommit commit) -> {
+            Map<String,Object> temp = new HashMap<>();
+            temp.put("message",commit.getShortMessage());
+            temp.put("time",commit.getCommitTime());
+            temp.put("authorName",commit.getCommitterIdent().getName());
+            temp.put("authorEmail",commit.getCommitterIdent().getEmailAddress());
+            temp.put("tree",commit.getTree().getName());
+            temp.put("id",commit.getId().getName());
+            commitsInfo.add(temp);
+        });
+        map.put("commits",commitsInfo);
+        return new SuccessInfo(map);
+    }
 
     @GetMapping(path = "/api/{group}/{repo}/commit/info/{id}")
     @ResponseBody

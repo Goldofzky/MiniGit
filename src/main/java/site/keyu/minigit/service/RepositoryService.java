@@ -33,29 +33,6 @@ public class RepositoryService {
 
     private Logger logger = LoggerFactory.getLogger(RepositoryService.class);
 
-    /**
-     * 获取仓库的分支基本信息
-     * @param repo
-     * @return
-     */
-    public List<BranchInfo> getBranches(Repository repo){
-        List<Ref> branchRefs =  gitService.branch(repo);//分支的引用
-        RevWalk revWalk = new RevWalk(repo);
-        List<BranchInfo> branchesInfos = new ArrayList<>();
-        for (Ref ref:branchRefs) {
-            try {
-                RevCommit revCommit = revWalk.parseCommit(ref.getObjectId());
-                BranchInfo branchInfo = new BranchInfo();
-                branchInfo.setHeadCommit(revCommit);
-                branchInfo.setRef(ref);
-                branchesInfos.add(branchInfo);
-            }catch (Exception e){
-                e.printStackTrace();
-                logger.error(e.getMessage());
-            }
-        }
-        return branchesInfos;
-    }
 
     /**
      * 获取绑定的Repository对象
